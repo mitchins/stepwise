@@ -101,7 +101,7 @@ func rendersCardRowProgressAndThemeBodies() {
                 Step(id: "done", title: "Open the kit", detail: "Lay everything on a clean surface.", state: .done),
                 Step(id: "now", title: "Connect the cable", detail: "Use the marked port.", state: .now),
                 Step(id: "skip", title: "Skip this step", detail: "Optional.", state: .skipped),
-                Step(id: "todo", title: "Wait 30 sec", kind: .timer, duration: .seconds(30), timer: StepTimer(duration: .seconds(30)))
+                Step(id: "todo", title: "Wait 30 sec", kind: .timer, timing: .init(duration: .seconds(30), timer: StepTimer(duration: .seconds(30))))
             ])
         ]
     )
@@ -142,7 +142,7 @@ func rendersListAndFlowBodies() {
             StepSection(
                 steps: [
                     Step(id: "skip", title: "Skip this step", detail: "Optional.", state: .skipped),
-                    Step(id: "todo", title: "Wait 30 sec", kind: .timer, duration: .seconds(30), timer: StepTimer(duration: .seconds(30)))
+                    Step(id: "todo", title: "Wait 30 sec", kind: .timer, timing: .init(duration: .seconds(30), timer: StepTimer(duration: .seconds(30))))
                 ]
             )
         ]

@@ -160,12 +160,13 @@ private struct ExtractionStepPayload: Decodable {
             title: title,
             detail: detail,
             kind: kind ?? .action,
-            duration: duration,
-            timer: timer,
-            icon: icon,
             state: state ?? .todo,
-            warnings: warnings?.map { $0.warning() } ?? [],
-            metadata: metadata ?? [:]
+            timing: .init(duration: duration, timer: timer),
+            annotations: .init(
+                icon: icon,
+                warnings: warnings?.map { $0.warning() } ?? [],
+                metadata: metadata ?? [:]
+            )
         )
     }
 }

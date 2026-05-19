@@ -36,7 +36,7 @@ public struct FoundationModelStepExtractor: StepExtractor {
         self.configuration = configuration
     }
 
-    public func extractSteps(from input: String) async throws -> StepExtractionResult {
+    public func extractSteps(from _: String) async throws -> StepExtractionResult {
         throw StepExtractionError.foundationModelUnavailable(
             "Foundation Model execution is intentionally left as an availability-gated integration point until the SDK API is confirmed in this package's build environment."
         )

@@ -18,9 +18,11 @@ func documentCodableRoundTrips() throws {
                         title: "Rinse the rice",
                         detail: "Cold water until it runs clear.",
                         kind: .action,
-                        duration: .minutes(2),
-                        icon: StepIconHint(symbolName: "drop.fill"),
-                        warnings: [StepWarning(id: "note", message: "Drain completely.")]
+                        timing: .init(duration: .minutes(2)),
+                        annotations: .init(
+                            icon: StepIconHint(symbolName: "drop.fill"),
+                            warnings: [StepWarning(id: "note", message: "Drain completely.")]
+                        )
                     )
                 ]
             )

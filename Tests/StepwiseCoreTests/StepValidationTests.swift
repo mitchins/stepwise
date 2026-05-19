@@ -58,7 +58,7 @@ func validationFlagsModelCommentaryLeakageAndMissingTimer() {
         sections: [
             StepSection(steps: [
                 Step(title: "Here is the JSON:", detail: "```json"),
-                Step(title: "Wait 5 min", kind: .wait, duration: .minutes(5)),
+                Step(title: "Wait 5 min", kind: .wait, timing: .init(duration: .minutes(5))),
                 Step(title: "Set a timer for 30 sec")
             ])
         ]

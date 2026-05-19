@@ -154,6 +154,32 @@ public struct StepWarning: Codable, Equatable, Hashable, Identifiable, Sendable 
 }
 
 public struct Step: Codable, Equatable, Hashable, Identifiable, Sendable {
+    public struct Timing: Codable, Equatable, Hashable, Sendable {
+        public var duration: StepDuration?
+        public var timer: StepTimer?
+
+        public init(duration: StepDuration? = nil, timer: StepTimer? = nil) {
+            self.duration = duration
+            self.timer = timer
+        }
+    }
+
+    public struct Annotations: Codable, Equatable, Hashable, Sendable {
+        public var icon: StepIconHint?
+        public var warnings: [StepWarning]
+        public var metadata: [String: String]
+
+        public init(
+            icon: StepIconHint? = nil,
+            warnings: [StepWarning] = [],
+            metadata: [String: String] = [:]
+        ) {
+            self.icon = icon
+            self.warnings = warnings
+            self.metadata = metadata
+        }
+    }
+
     public var id: String
     public var title: String
     public var detail: String?
@@ -170,23 +196,20 @@ public struct Step: Codable, Equatable, Hashable, Identifiable, Sendable {
         title: String,
         detail: String? = nil,
         kind: StepKind = .action,
-        duration: StepDuration? = nil,
-        timer: StepTimer? = nil,
-        icon: StepIconHint? = nil,
         state: StepState = .todo,
-        warnings: [StepWarning] = [],
-        metadata: [String: String] = [:]
+        timing: Timing = Timing(),
+        annotations: Annotations = Annotations()
     ) {
         self.id = id
         self.title = title
         self.detail = detail
         self.kind = kind
-        self.duration = duration
-        self.timer = timer
-        self.icon = icon
+        self.duration = timing.duration
+        self.timer = timing.timer
+        self.icon = annotations.icon
         self.state = state
-        self.warnings = warnings
-        self.metadata = metadata
+        self.warnings = annotations.warnings
+        self.metadata = annotations.metadata
     }
 }
 

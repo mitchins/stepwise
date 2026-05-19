@@ -8,15 +8,15 @@ let recipeFlow = StepDocument(
         StepSection(
             title: "Prep",
             steps: [
-                Step(title: "Rinse the rice", detail: "Cold water until it runs clear.", duration: .minutes(2), icon: StepIconHint(symbolName: "drop.fill")),
-                Step(title: "Chop the tomatoes", detail: "Keep the juices.", icon: StepIconHint(symbolName: "knife"))
+                    Step(title: "Rinse the rice", detail: "Cold water until it runs clear.", timing: .init(duration: .minutes(2)), annotations: .init(icon: StepIconHint(symbolName: "drop.fill"))),
+                    Step(title: "Chop the tomatoes", detail: "Keep the juices.", annotations: .init(icon: StepIconHint(symbolName: "knife")))
             ]
         ),
         StepSection(
             title: "Cook",
             steps: [
-                Step(title: "Heat the pan", detail: "Medium heat.", duration: .minutes(3), icon: StepIconHint(symbolName: "flame.fill")),
-                Step(title: "Simmer 20 min", detail: "Low heat, covered. Stir every 5 min.", kind: .timer, duration: .minutes(20), timer: StepTimer(duration: .minutes(20)), icon: StepIconHint(symbolName: "timer"))
+                    Step(title: "Heat the pan", detail: "Medium heat.", timing: .init(duration: .minutes(3)), annotations: .init(icon: StepIconHint(symbolName: "flame.fill"))),
+                    Step(title: "Simmer 20 min", detail: "Low heat, covered. Stir every 5 min.", kind: .timer, timing: .init(duration: .minutes(20), timer: StepTimer(duration: .minutes(20))), annotations: .init(icon: StepIconHint(symbolName: "timer")))
             ]
         )
     ],
