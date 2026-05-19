@@ -20,6 +20,21 @@ func configurationClampsMaximumTitleLengthToAtLeastOneCharacter() {
 }
 
 @Test
+func jsonExtractorParsesAndMockExtractorRejectsBlankInput() async throws {
+    let extractor = JSONStepExtractor()
+    let result = try await extractor.extractSteps(from: validJSON)
+
+    #expect(result.document.steps.count == 2)
+    #expect(result.document.steps[1].kind == .timer)
+
+    let mock = MockStepExtractor(result: result)
+
+    await #expect(throws: StepExtractionError.emptyInput) {
+        try await mock.extractSteps(from: "   ")
+    }
+}
+
+@Test
 func recipePromptPreservesMeasurements() {
     let prompts = StepPromptSet.build(
         input: "Bake at 180 °C for 25 min.",
