@@ -118,3 +118,20 @@ func validationFlagsAmbiguousDurationRangesWithoutInventingPrecision() {
     #expect(report.isValid)
     #expect(report.issues.filter { $0.code == .ambiguousDuration }.count == 3)
 }
+
+@Test
+func validatorClampsMaximumTitleLengthToAtLeastOneCharacter() {
+    let validator = StepValidator(maximumTitleLength: 0)
+    let report = validator.validate(
+        StepDocument(
+            sections: [
+                StepSection(steps: [
+                    Step(title: "A")
+                ])
+            ]
+        )
+    )
+
+    #expect(validator.maximumTitleLength == 1)
+    #expect(!report.contains(.overlongTitle))
+}

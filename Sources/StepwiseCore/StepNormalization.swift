@@ -67,9 +67,42 @@ public struct StepNormalizer: Sendable {
         text.replacingOccurrences(of: "\\s+", with: " ", options: .regularExpression)
     }
 
+    static func containsObviousMultiAction(in text: String) -> Bool {
+        let lowercased = collapseWhitespace(in: text).lowercased()
+        return lowercased.contains(" and then ")
+            || lowercased.contains("; then ")
+            || lowercased.contains(". then ")
+    }
+
+    static func containsAmbiguousDuration(in text: String) -> Bool {
+        let lowercased = collapseWhitespace(in: text).lowercased()
+        return lowercased.range(of: #"\b\d+\s*[-–]\s*\d+\s*(sec|secs|seconds?|min|mins|minutes?|hr|hrs|hours?)\b"#, options: .regularExpression) != nil
+            || lowercased.contains("a while")
+            || lowercased.contains("some time")
+            || lowercased.contains("few minutes")
+            || lowercased.contains("a few")
+            || lowercased.contains("several ")
+            || lowercased.contains("until ready")
+            || lowercased.contains("overnight or")
+    }
+
+    static func containsTimerLikeInstruction(in text: String) -> Bool {
+        let lowercased = collapseWhitespace(in: text).lowercased()
+        return lowercased.hasPrefix("wait ")
+            || lowercased.hasPrefix("rest ")
+            || lowercased.hasPrefix("cool ")
+            || lowercased.hasPrefix("chill ")
+            || lowercased.hasPrefix("soak ")
+            || lowercased.hasPrefix("proof ")
+            || lowercased.hasPrefix("let sit ")
+            || lowercased.hasPrefix("let stand ")
+            || lowercased.hasPrefix("set a timer ")
+            || lowercased.contains(" set a timer ")
+    }
+
     public static func removeStepPrefix(from text: String) -> String {
         text.replacingOccurrences(
-            of: #"^\s*(?:step\s*)?\d+\s*[\.)\-:]\s*"#,
+            of: #"^\s*(?:step\s*)?\d+\s*(?:[.):]|-\s+)\s*"#,
             with: "",
             options: [.regularExpression, .caseInsensitive]
         )
@@ -82,7 +115,7 @@ public struct StepNormalizer: Sendable {
             return .textual("overnight")
         }
 
-        if containsAmbiguousDurationRange(in: normalized) || containsApproximateDuration(in: normalized) {
+        if Self.containsAmbiguousDuration(in: normalized) {
             return nil
         }
 
@@ -121,21 +154,7 @@ public struct StepNormalizer: Sendable {
             return step.kind
         }
 
-        let lowercased = text.lowercased()
-        let isWaitLike = lowercased.hasPrefix("wait ")
-            || lowercased.hasPrefix("rest ")
-            || lowercased.hasPrefix("cool ")
-            || lowercased.hasPrefix("chill ")
-            || lowercased.hasPrefix("soak ")
-            || lowercased.hasPrefix("proof ")
-            || lowercased.hasPrefix("let sit ")
-            || lowercased.hasPrefix("let stand ")
-            || lowercased.hasPrefix("set a timer ")
-            || lowercased.contains(" let sit ")
-            || lowercased.contains(" let stand ")
-            || lowercased.contains(" set a timer ")
-
-        guard isWaitLike else {
+        guard Self.containsTimerLikeInstruction(in: text) else {
             return step.kind
         }
 
@@ -160,15 +179,4 @@ public struct StepNormalizer: Sendable {
         return text
     }
 
-    private static func containsAmbiguousDurationRange(in text: String) -> Bool {
-        text.range(of: #"\b\d+\s*[-–]\s*\d+\s*(sec|secs|seconds?|min|mins|minutes?|hr|hrs|hours?)\b"#, options: .regularExpression) != nil
-    }
-
-    private static func containsApproximateDuration(in text: String) -> Bool {
-        text.contains("a few")
-            || text.contains("several ")
-            || text.contains("some time")
-            || text.contains("a while")
-            || text.contains("until ready")
-    }
 }

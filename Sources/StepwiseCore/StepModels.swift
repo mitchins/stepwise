@@ -337,7 +337,10 @@ public extension StepDocument {
     }
 
     func preferringCurrentStep(_ preferredActiveID: Step.ID?) -> StepDocument {
-        guard let preferredActiveID else {
+        guard let preferredActiveID,
+              steps.contains(where: { step in
+                  step.id == preferredActiveID && step.state != .done && step.state != .skipped
+              }) else {
             return self
         }
 

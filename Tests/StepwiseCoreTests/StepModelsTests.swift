@@ -119,3 +119,20 @@ func preferredCurrentStepPreservesDoneAndSkippedStates() {
     #expect(updated.steps[1].state == .now)
     #expect(updated.steps[2].state == .skipped)
 }
+
+@Test
+func preferredCurrentStepLeavesExistingStateUntouchedWhenPreferenceIsInvalid() {
+    let document = StepDocument(
+        sections: [
+            StepSection(steps: [
+                Step(id: "done", title: "Done", state: .done),
+                Step(id: "current", title: "Current", state: .now),
+                Step(id: "todo", title: "Todo", state: .todo)
+            ])
+        ]
+    )
+
+    let updated = document.preferringCurrentStep("done")
+
+    #expect(updated.steps.map(\.state) == [.done, .now, .todo])
+}

@@ -52,7 +52,7 @@ public struct StepCompletionView: View {
         .frame(maxWidth: .infinity)
         .padding(24)
         .background(.regularMaterial, in: RoundedRectangle(cornerRadius: theme.cornerRadius + 10, style: .continuous))
-        .accessibilityElement(children: .combine)
+        .accessibilityElement(children: action == nil ? .combine : .contain)
         .accessibilityLabel(summary)
     }
 

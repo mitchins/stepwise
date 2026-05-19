@@ -60,7 +60,7 @@ public struct StepValidator: Sendable {
     public var maximumTitleLength: Int
 
     public init(maximumTitleLength: Int = 80) {
-        self.maximumTitleLength = maximumTitleLength
+        self.maximumTitleLength = max(1, maximumTitleLength)
     }
 
     public func validate(_ document: StepDocument) -> StepValidationReport {
@@ -100,11 +100,11 @@ public struct StepValidator: Sendable {
                     }
                 }
 
-                if containsObviousMultiAction(in: searchableText) {
+                if StepNormalizer.containsObviousMultiAction(in: searchableText) {
                     issues.append(issue(.warning, .multiActionStep, "Step may contain multiple actions that should be split.", stepPath))
                 }
 
-                if containsAmbiguousDuration(in: searchableText) {
+                if StepNormalizer.containsAmbiguousDuration(in: searchableText) {
                     issues.append(issue(.warning, .ambiguousDuration, "Duration wording is ambiguous and should not be converted to an exact timer.", stepPath))
                 }
 
@@ -151,25 +151,6 @@ public struct StepValidator: Sendable {
             .lowercased()
     }
 
-    private func containsObviousMultiAction(in text: String) -> Bool {
-        let lowercased = text.lowercased()
-        return lowercased.contains(" and then ")
-            || lowercased.contains("; then ")
-            || lowercased.contains(". then ")
-    }
-
-    private func containsAmbiguousDuration(in text: String) -> Bool {
-        let lowercased = text.lowercased()
-        return lowercased.range(of: #"\b\d+\s*[-–]\s*\d+\s*(sec|secs|seconds?|min|mins|minutes?|hr|hrs|hours?)\b"#, options: .regularExpression) != nil
-            || lowercased.contains("a while")
-            || lowercased.contains("some time")
-            || lowercased.contains("few minutes")
-            || lowercased.contains("a few")
-            || lowercased.contains("several ")
-            || lowercased.contains("until ready")
-            || lowercased.contains("overnight or")
-    }
-
     private func containsModelCommentary(in text: String) -> Bool {
         let lowercased = text.lowercased()
         return lowercased.contains("```")
@@ -189,21 +170,7 @@ public struct StepValidator: Sendable {
             return step.duration?.isExact == true || parsedDuration?.isExact == true
         }
 
-        return (step.kind == .wait || containsTimerLikeInstruction(in: text))
+        return (step.kind == .wait || StepNormalizer.containsTimerLikeInstruction(in: text))
             && (step.duration?.isExact == true || parsedDuration?.isExact == true)
-    }
-
-    private func containsTimerLikeInstruction(in text: String) -> Bool {
-        let lowercased = StepNormalizer.collapseWhitespace(in: text).lowercased()
-        return lowercased.hasPrefix("wait ")
-            || lowercased.hasPrefix("rest ")
-            || lowercased.hasPrefix("cool ")
-            || lowercased.hasPrefix("chill ")
-            || lowercased.hasPrefix("soak ")
-            || lowercased.hasPrefix("proof ")
-            || lowercased.hasPrefix("let sit ")
-            || lowercased.hasPrefix("let stand ")
-            || lowercased.hasPrefix("set a timer ")
-            || lowercased.contains(" set a timer ")
     }
 }

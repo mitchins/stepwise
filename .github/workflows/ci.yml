@@ -5,12 +5,16 @@ on:
     branches: [main]
   pull_request:
     branches: [main]
+    types: [opened, synchronize, reopened]
 
 jobs:
   build-and-test:
     runs-on: macos-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
       - name: Swift version
         run: swift --version
       - name: Describe package
@@ -18,4 +22,45 @@ jobs:
       - name: Build
         run: swift build
       - name: Test
-        run: swift test
+        run: swift test --enable-code-coverage
+      - name: Generate SonarCloud coverage report
+        if: ${{ github.event_name == 'push' || github.event.pull_request.head.repo.fork == false }}
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          bin_path="$(swift build --show-bin-path)"
+          profdata="$(find "$bin_path" -name default.profdata -print -quit)"
+
+          if [[ -z "$profdata" ]]; then
+            echo "Unable to locate default.profdata under $bin_path" >&2
+            exit 1
+          fi
+
+          test_bundles=()
+          while IFS= read -r test_bundle; do
+            test_bundles+=("$test_bundle")
+          done < <(find "$bin_path" -path '*.xctest/Contents/MacOS/*' -type f -perm -111 | sort)
+
+          if [[ ${#test_bundles[@]} -eq 0 ]]; then
+            echo "Unable to locate any test bundles under $bin_path" >&2
+            exit 1
+          fi
+
+          mkdir -p coverage
+
+          xcrun llvm-cov export \
+            -format=json \
+            -instr-profile "$profdata" \
+            "${test_bundles[@]}" \
+            > coverage/llvm-cov.json
+
+          python3 .github/scripts/swift_coverage_to_sonar.py \
+            coverage/llvm-cov.json \
+            coverage/sonar-coverage.xml
+      - name: SonarCloud Scan
+        if: ${{ github.event_name == 'push' || github.event.pull_request.head.repo.fork == false }}
+        uses: SonarSource/sonarqube-scan-action@7006c4492b2e0ee0f816d36501671557c97f5995 # v8.1.0
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

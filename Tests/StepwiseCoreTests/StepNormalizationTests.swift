@@ -11,6 +11,13 @@ func normalizationTrimsWhitespaceAndStepPrefixes() {
 }
 
 @Test
+func normalizationPreservesHyphenatedTitlesWithoutStrippingRealContent() {
+    let normalized = StepNormalizer().normalize(Step(title: "10-minute marinade"))
+
+    #expect(normalized.title == "10-minute marinade")
+}
+
+@Test
 func parsesSimpleDurations() {
     #expect(StepNormalizer.parseDuration(from: "Wait 30 sec") == .seconds(30))
     #expect(StepNormalizer.parseDuration(from: "Wait 30sec") == .seconds(30))

@@ -134,7 +134,7 @@ extension StepwiseTheme {
         case .now, .done:
             .white
         case .skipped:
-            .secondary
+            .primary
         }
     }
 }

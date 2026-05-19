@@ -30,7 +30,13 @@ public struct StepProgressDots: View {
         }
         .animation(reduceMotion ? nil : .easeInOut(duration: 0.26), value: currentIndex)
         .accessibilityElement(children: .ignore)
-        .accessibilityLabel("Step \(min(currentIndex + 1, max(total, 1))) of \(max(total, 1))")
+        .accessibilityLabel(accessibilityLabelText)
+    }
+
+    private var accessibilityLabelText: String {
+        let announcedTotal = max(total, 1)
+        let announcedIndex = min(max(currentIndex + 1, 1), announcedTotal)
+        return "Step \(announcedIndex) of \(announcedTotal)"
     }
 
     private func color(for index: Int) -> Color {

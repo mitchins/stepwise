@@ -31,7 +31,7 @@ public struct StepExtractionConfiguration: Codable, Equatable, Sendable {
         self.title = title
         self.maximumRepairAttempts = max(0, maximumRepairAttempts)
         self.allowsSafeJSONExtraction = allowsSafeJSONExtraction
-        self.maximumTitleLength = maximumTitleLength
+        self.maximumTitleLength = max(1, maximumTitleLength)
     }
 }
 

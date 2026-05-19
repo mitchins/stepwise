@@ -3,18 +3,15 @@ public import StepwiseCore
 
 public struct StepRailView: View {
     public var document: StepDocument
-    public var currentStepID: Step.ID?
     public var theme: StepwiseTheme
     public var onSelectStep: ((Step) -> Void)?
 
     public init(
         document: StepDocument,
-        currentStepID: Step.ID? = nil,
         theme: StepwiseTheme = .standard,
         onSelectStep: ((Step) -> Void)? = nil
     ) {
         self.document = document
-        self.currentStepID = currentStepID
         self.theme = theme
         self.onSelectStep = onSelectStep
     }
@@ -24,7 +21,7 @@ public struct StepRailView: View {
             LazyVStack(alignment: .leading, spacing: 4) {
                 ForEach(Array(document.steps.enumerated()), id: \.element.id) { index, step in
                     StepRowView(
-                        step: adjusted(step),
+                        step: step,
                         index: index,
                         total: document.steps.count,
                         theme: theme,
@@ -36,18 +33,6 @@ public struct StepRailView: View {
             .padding(.vertical, 8)
         }
         .background(.regularMaterial)
-    }
-
-    private func adjusted(_ step: Step) -> Step {
-        guard let currentStepID else {
-            return step
-        }
-
-        var copy = step
-        if copy.id == currentStepID, copy.state == .todo {
-            copy.state = .now
-        }
-        return copy
     }
 }
 
@@ -75,7 +60,7 @@ public struct StepFlowView: View {
     public var body: some View {
         ViewThatFits(in: .horizontal) {
             HStack(alignment: .top, spacing: 20) {
-                StepRailView(document: displayDocument, currentStepID: activeStep?.id, theme: theme, onSelectStep: onSelectStep)
+                StepRailView(document: displayDocument, theme: theme, onSelectStep: onSelectStep)
                     .frame(width: 320)
                     .clipShape(RoundedRectangle(cornerRadius: theme.cornerRadius, style: .continuous))
 

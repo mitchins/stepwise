@@ -12,6 +12,14 @@ func promptBuilderRequiresStrictJSON() {
 }
 
 @Test
+func configurationClampsMaximumTitleLengthToAtLeastOneCharacter() {
+    let configuration = StepExtractionConfiguration(maximumRepairAttempts: -2, maximumTitleLength: 0)
+
+    #expect(configuration.maximumRepairAttempts == 0)
+    #expect(configuration.maximumTitleLength == 1)
+}
+
+@Test
 func recipePromptPreservesMeasurements() {
     let prompts = StepPromptSet.build(
         input: "Bake at 180 °C for 25 min.",
