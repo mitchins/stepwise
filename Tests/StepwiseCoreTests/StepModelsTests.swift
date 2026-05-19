@@ -136,3 +136,20 @@ func preferredCurrentStepLeavesExistingStateUntouchedWhenPreferenceIsInvalid() {
 
     #expect(updated.steps.map(\.state) == [.done, .now, .todo])
 }
+
+@Test
+func preferredCurrentStepUsesPositionToDisambiguateDuplicateIDs() {
+    let document = StepDocument(
+        sections: [
+            StepSection(steps: [
+                Step(id: "dup", title: "Finished", state: .done),
+                Step(id: "dup", title: "Active", state: .todo),
+                Step(id: "tail", title: "Tail", state: .todo)
+            ])
+        ]
+    )
+
+    let updated = document.preferringCurrentStep("dup")
+
+    #expect(updated.steps.map(\.state) == [.done, .now, .todo])
+}

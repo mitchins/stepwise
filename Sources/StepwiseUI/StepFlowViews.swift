@@ -19,7 +19,7 @@ public struct StepRailView: View {
     public var body: some View {
         ScrollView {
             LazyVStack(alignment: .leading, spacing: 4) {
-                ForEach(Array(document.steps.enumerated()), id: \.element.id) { index, step in
+                ForEach(Array(document.steps.enumerated()), id: \.offset) { index, step in
                     StepRowView(
                         step: step,
                         index: index,
@@ -105,21 +105,11 @@ public struct StepFlowView: View {
     }
 
     var activeStep: Step? {
-        currentStepID.flatMap { id in
-            guard let step = displayDocument.step(withID: id),
-                  step.state != .done,
-                  step.state != .skipped else {
-                return nil
-            }
-            return step
-        } ?? displayDocument.currentStep
+        displayDocument.currentStep
     }
 
-    private var activeIndex: Int? {
-        guard let activeStep else {
-            return nil
-        }
-        return displayDocument.steps.firstIndex { $0.id == activeStep.id }
+    var activeIndex: Int? {
+        displayDocument.currentStepIndex
     }
 }
 

@@ -47,7 +47,7 @@ public struct WatchStepRailView: View {
 
             ScrollView {
                 LazyVStack(spacing: 2) {
-                    ForEach(Array(railSteps.enumerated()), id: \.element.id) { index, step in
+                    ForEach(Array(railSteps.enumerated()), id: \.offset) { index, step in
                         StepRowView(
                             step: step,
                             index: index,
@@ -68,21 +68,11 @@ public struct WatchStepRailView: View {
     }
 
     private var activeStep: Step? {
-        currentStepID.flatMap { id in
-            guard let step = displayDocument.step(withID: id),
-                  step.state != .done,
-                  step.state != .skipped else {
-                return nil
-            }
-            return step
-        } ?? displayDocument.currentStep
+        displayDocument.currentStep
     }
 
-    private var activeIndex: Int? {
-        guard let activeStep else {
-            return nil
-        }
-        return displayDocument.steps.firstIndex { $0.id == activeStep.id }
+    var activeIndex: Int? {
+        displayDocument.currentStepIndex
     }
 
     var railSteps: [Step] {

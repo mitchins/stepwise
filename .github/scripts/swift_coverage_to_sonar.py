@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import json
 import sys
 import xml.etree.ElementTree as ET
 from collections import defaultdict
@@ -33,27 +32,36 @@ def main() -> int:
     output_path = Path(sys.argv[2])
     repo_root = Path.cwd().resolve()
 
-    coverage_data = json.loads(input_path.read_text(encoding="utf-8"))
     line_hits_by_file: dict[str, dict[int, int]] = defaultdict(dict)
 
-    for dataset in coverage_data.get("data", []):
-        for file_info in dataset.get("files", []):
-            raw_path = file_info.get("filename") or file_info.get("path")
-            if not raw_path:
+    current_path: str | None = None
+    for raw_line in input_path.read_text(encoding="utf-8").splitlines():
+        line = raw_line.strip()
+        if not line:
+            continue
+
+        if line.startswith("SF:"):
+            current_path = normalize_path(line[3:], repo_root)
+            continue
+
+        if line.startswith("DA:") and current_path is not None:
+            line_data = line[3:]
+            parts = line_data.split(",")
+            if len(parts) < 2:
                 continue
 
-            normalized_path = normalize_path(raw_path, repo_root)
-            file_line_hits = line_hits_by_file[normalized_path]
+            line_number = int(parts[0])
+            execution_count = int(parts[1])
+            file_line_hits = line_hits_by_file[current_path]
+            current_count = file_line_hits.get(line_number, 0)
+            if execution_count > current_count:
+                file_line_hits[line_number] = execution_count
+            else:
+                file_line_hits.setdefault(line_number, current_count)
+            continue
 
-            for segment in file_info.get("segments", []):
-                if len(segment) < 3:
-                    continue
-
-                line_number = int(segment[0])
-                execution_count = int(segment[2])
-                current_count = file_line_hits.get(line_number, 0)
-                if execution_count > current_count:
-                    file_line_hits[line_number] = execution_count
+        if line == "end_of_record":
+            current_path = None
 
     root = ET.Element("coverage", version="1")
 

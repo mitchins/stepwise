@@ -85,3 +85,22 @@ func watchRailDoesNotExposeCompletedCurrentStepAsActive() {
 
     #expect(view.railSteps[0].state == .done)
 }
+
+@MainActor
+@Test
+func flowViewResolvesDuplicateIDsByPosition() {
+    let document = StepDocument(
+        sections: [
+            StepSection(steps: [
+                Step(id: "dup", title: "Finished", state: .done),
+                Step(id: "dup", title: "Active", state: .todo),
+                Step(id: "tail", title: "Tail", state: .todo)
+            ])
+        ]
+    )
+
+    let view = StepFlowView(document: document, currentStepID: "dup")
+
+    #expect(view.displayDocument.steps.map(\.state) == [.done, .now, .todo])
+    #expect(view.activeIndex == 1)
+}

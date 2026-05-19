@@ -50,13 +50,13 @@ jobs:
           mkdir -p coverage
 
           xcrun llvm-cov export \
-            -format=json \
+            -format=lcov \
             -instr-profile "$profdata" \
             "${test_bundles[@]}" \
-            > coverage/llvm-cov.json
+            > coverage/llvm-cov.info
 
           python3 .github/scripts/swift_coverage_to_sonar.py \
-            coverage/llvm-cov.json \
+            coverage/llvm-cov.info \
             coverage/sonar-coverage.xml
       - name: SonarCloud Scan
         if: ${{ github.event_name == 'push' || github.event.pull_request.head.repo.fork == false }}

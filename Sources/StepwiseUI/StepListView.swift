@@ -55,7 +55,7 @@ public struct StepListView: View {
                 }
 
                 VStack(spacing: 0) {
-                    ForEach(Array(item.section.steps.enumerated()), id: \.element.id) { localIndex, step in
+                    ForEach(Array(item.section.steps.enumerated()), id: \.offset) { localIndex, step in
                         StepRowView(
                             step: step,
                             index: item.startIndex + localIndex,

@@ -338,21 +338,24 @@ public extension StepDocument {
 
     func preferringCurrentStep(_ preferredActiveID: Step.ID?) -> StepDocument {
         guard let preferredActiveID,
-              steps.contains(where: { step in
+              let preferredActiveIndex = steps.enumerated().first(where: { _, step in
                   step.id == preferredActiveID && step.state != .done && step.state != .skipped
-              }) else {
+              })?.offset else {
             return self
         }
 
         var copy = self
+        var flatIndex = 0
         copy.sections = sections.map { section in
             var sectionCopy = section
             sectionCopy.steps = section.steps.map { step in
+                let currentFlatIndex = flatIndex
+                flatIndex += 1
                 var stepCopy = step
                 guard stepCopy.state != .done && stepCopy.state != .skipped else {
                     return stepCopy
                 }
-                stepCopy.state = stepCopy.id == preferredActiveID ? .now : .todo
+                stepCopy.state = currentFlatIndex == preferredActiveIndex ? .now : .todo
                 return stepCopy
             }
             return sectionCopy
