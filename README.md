@@ -203,7 +203,7 @@ let prompts = StepPromptSet.build(
 )
 ```
 
-The target provides a protocol, prompt/schema builders, deterministic JSON parsing, validation, repair prompt hooks, mocks, and an availability-gated placeholder for future SDK integration. It does not claim real Foundation Model runtime behavior in this environment.
+The target provides a protocol, prompt/schema builders, deterministic JSON parsing, validation, repair prompt hooks, mocks, and a runtime-gated `FoundationModelStepExtractor` when the Foundation Models framework is actually available. Deterministic extraction tests always run; live Foundation Models sanity checks are opt-in with `STEPWISE_RUN_FOUNDATION_MODEL_TESTS=1 swift test`.
 
 See `docs/Extraction.md`.
 
