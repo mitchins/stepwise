@@ -218,7 +218,9 @@ public struct FoundationModelDeviceModelStub: FoundationModelDeviceModel {
 #if canImport(FoundationModels)
 @available(iOS 26.0, macOS 26.0, *)
 public struct LiveFoundationModelDeviceModel: FoundationModelDeviceModel {
-    public init() {}
+    public init() {
+        // No stored state: this adapter resolves the default system model at call time.
+    }
 
     @available(iOS 26.0, macOS 26.0, *)
     public var availability: FoundationModelDeviceModelAvailability {
@@ -228,7 +230,7 @@ public struct LiveFoundationModelDeviceModel: FoundationModelDeviceModel {
     @available(iOS 26.0, macOS 26.0, *)
     public func generateResponse(
         for _: String,
-        configuration: StepExtractionConfiguration,
+        configuration _: StepExtractionConfiguration,
         prompts: StepPromptSet
     ) async throws -> String {
         let model = SystemLanguageModel.default
