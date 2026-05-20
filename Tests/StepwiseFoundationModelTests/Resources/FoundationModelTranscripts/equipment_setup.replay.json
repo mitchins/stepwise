@@ -1,0 +1,103 @@
+{
+  "configuration" : {
+    "allowsSafeJSONExtraction" : false,
+    "domain" : "checklist",
+    "maximumRepairAttempts" : 1,
+    "maximumTitleLength" : 80,
+    "title" : "Equipment Setup"
+  },
+  "environment" : "[runtime=Version 26.3.1 (a) (Build 25D771280a) sdk_version=26.5 sdk_path=\/Applications\/Xcode.app\/Contents\/Developer\/Platforms\/MacOSX.platform\/Developer\/SDKs\/MacOSX26.5.sdk xcode=Xcode 26.5]",
+  "error" : "commentaryWrappedJSON",
+  "fixtureID" : "equipment_setup",
+  "input" : "Equipment Setup\n1. Open the kit.\n2. Connect the marked cable.\n3. Wait 30 sec.\n4. Confirm the status light is solid.",
+  "kind" : "replay",
+  "result" : {
+    "document" : {
+      "id" : "equipment-setup",
+      "metadata" : {
+
+      },
+      "sections" : [
+        {
+          "id" : "main",
+          "steps" : [
+            {
+              "id" : "open",
+              "kind" : "action",
+              "metadata" : {
+
+              },
+              "state" : "todo",
+              "title" : "Open the kit",
+              "warnings" : [
+
+              ]
+            },
+            {
+              "detail" : "Use the marked cable.",
+              "id" : "connect",
+              "kind" : "action",
+              "metadata" : {
+
+              },
+              "state" : "todo",
+              "title" : "Connect the cable",
+              "warnings" : [
+
+              ]
+            },
+            {
+              "duration" : {
+                "kind" : "seconds",
+                "value" : 30
+              },
+              "id" : "wait",
+              "kind" : "timer",
+              "metadata" : {
+
+              },
+              "state" : "todo",
+              "timer" : {
+                "automaticallyStarts" : false,
+                "duration" : {
+                  "kind" : "seconds",
+                  "value" : 30
+                },
+                "id" : "13364855-F8A4-476E-B754-F41C7FD6D5F3",
+                "title" : "Wait 30 sec"
+              },
+              "title" : "Wait 30 sec",
+              "warnings" : [
+
+              ]
+            },
+            {
+              "detail" : "Check that the light is solid.",
+              "id" : "confirm",
+              "kind" : "check",
+              "metadata" : {
+
+              },
+              "state" : "todo",
+              "title" : "Confirm the status light",
+              "warnings" : [
+
+              ]
+            }
+          ],
+          "title" : "Main"
+        }
+      ],
+      "title" : "Equipment Setup"
+    },
+    "rawOutput" : "{\n                \"id\": \"equipment-setup\",\n  \"title\": \"Equipment Setup\",\n  \"sections\": [\n    {\n                        \"id\": \"main\",\n      \"title\": \"Main\",\n      \"steps\": [\n        {\n                                \"id\": \"open\",\n          \"title\": \"Open the kit\",\n          \"kind\": \"action\",\n                                \"state\": \"todo\",\n          \"warnings\": [],\n          \"metadata\": {}\n        },\n        {\n                                \"id\": \"connect\",\n          \"title\": \"Connect the cable\",\n          \"detail\": \"Use the marked cable.\",\n          \"kind\": \"action\",\n                                \"state\": \"todo\",\n          \"warnings\": [],\n          \"metadata\": {}\n        },\n        {\n                                \"id\": \"wait\",\n          \"title\": \"Wait 30 sec\",\n          \"kind\": \"wait\",\n          \"duration\": {\"kind\": \"seconds\", \"value\": 30},\n                                \"state\": \"todo\",\n          \"warnings\": [],\n          \"metadata\": {}\n        },\n        {\n                                \"id\": \"confirm\",\n          \"title\": \"Confirm the status light\",\n          \"detail\": \"Check that the light is solid.\",\n          \"kind\": \"check\",\n                                \"state\": \"todo\",\n          \"warnings\": [],\n          \"metadata\": {}\n        }\n      ]\n    }\n  ],\n  \"metadata\": {}\n}",
+    "repairs" : [
+
+    ],
+    "validationReport" : {
+      "issues" : [
+
+      ]
+    }
+  }
+}

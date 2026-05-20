@@ -243,9 +243,14 @@ struct FoundationModelFixtureMeasurement: Sendable {
 
 enum FoundationModelLiveTestHarness {
     static let environmentVariable = "STEPWISE_RUN_FOUNDATION_MODEL_TESTS"
+    static let transcriptEnvironmentVariable = "STEPWISE_DUMP_FOUNDATION_MODEL_TRANSCRIPTS"
 
     static var isOptedIn: Bool {
         ProcessInfo.processInfo.environment[environmentVariable] == "1"
+    }
+
+    static var shouldDumpTranscripts: Bool {
+        ProcessInfo.processInfo.environment[transcriptEnvironmentVariable] == "1"
     }
 
     static func shouldRun(testName: String) -> Bool {
@@ -290,6 +295,50 @@ enum FoundationModelLiveTestHarness {
 
     private static func logSkip(testName: String, reason: String) {
         print("[StepwiseFoundationModel] Skipping \(testName): \(reason) \(environmentSnapshot())")
+    }
+
+    static func recordTranscript(
+        fixture: FoundationModelSanityFixture,
+        kind: FoundationModelTranscriptKind,
+        result: StepExtractionResult?,
+        error: Error?,
+        transcriptsDirectoryURL: URL? = nil
+    ) {
+        guard shouldDumpTranscripts else {
+            return
+        }
+
+        let transcript = FoundationModelTranscript(
+            fixtureID: fixture.id,
+            input: fixture.input,
+            configuration: fixture.configuration,
+            kind: kind,
+            result: result,
+            error: error.map { String(describing: $0) },
+            environment: environmentSnapshot()
+        )
+
+        let encoder = JSONEncoder()
+        encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
+
+        let transcriptsDirectory = transcriptsDirectoryURL ?? URL(
+            fileURLWithPath: FileManager.default.currentDirectoryPath,
+            isDirectory: true
+        )
+        .appendingPathComponent(".build/foundation-model-transcripts", isDirectory: true)
+
+        do {
+            try FileManager.default.createDirectory(
+                at: transcriptsDirectory,
+                withIntermediateDirectories: true
+            )
+
+            let fileURL = transcriptsDirectory.appendingPathComponent("\(fixture.id).\(kind.rawValue).json")
+            let data = try encoder.encode(transcript)
+            try data.write(to: fileURL, options: .atomic)
+        } catch {
+            print("[StepwiseFoundationModel] Unable to write transcript for \(fixture.id): \(error)")
+        }
     }
 
     private static func environmentSnapshot() -> String {
