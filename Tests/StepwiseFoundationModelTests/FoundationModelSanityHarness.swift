@@ -250,13 +250,19 @@ enum FoundationModelLiveTestHarness {
 
     static func shouldRun(testName: String) -> Bool {
         guard isOptedIn else {
-            print("[StepwiseFoundationModel] Skipping \(testName): set \(environmentVariable)=1 to enable live Foundation Models tests.")
+            logSkip(
+                testName: testName,
+                reason: "set \(environmentVariable)=1 to enable live Foundation Models tests."
+            )
             return false
         }
 
         #if canImport(FoundationModels)
         guard #available(iOS 26.0, macOS 26.0, *) else {
-            print("[StepwiseFoundationModel] Skipping \(testName): Foundation Models APIs require iOS 26 or macOS 26.")
+            logSkip(
+                testName: testName,
+                reason: "Foundation Models APIs require iOS 26 or macOS 26."
+            )
             return false
         }
 
@@ -264,22 +270,72 @@ enum FoundationModelLiveTestHarness {
         case .available:
             return true
         case .unavailable(.appleIntelligenceNotEnabled):
-            print("[StepwiseFoundationModel] Skipping \(testName): Apple Intelligence is not enabled.")
+            logSkip(testName: testName, reason: "Apple Intelligence is not enabled.")
             return false
         case .unavailable(.deviceNotEligible):
-            print("[StepwiseFoundationModel] Skipping \(testName): device is not eligible for Foundation Models.")
+            logSkip(testName: testName, reason: "device is not eligible for Foundation Models.")
             return false
         case .unavailable(.modelNotReady):
-            print("[StepwiseFoundationModel] Skipping \(testName): Foundation Models assets are not ready.")
+            logSkip(testName: testName, reason: "Foundation Models assets are not ready.")
             return false
         @unknown default:
-            print("[StepwiseFoundationModel] Skipping \(testName): Foundation Models reported an unknown availability state.")
+            logSkip(testName: testName, reason: "Foundation Models reported an unknown availability state.")
             return false
         }
         #else
-        print("[StepwiseFoundationModel] Skipping \(testName): FoundationModels framework is unavailable in this SDK.")
+        logSkip(testName: testName, reason: "FoundationModels framework is unavailable in this SDK.")
         return false
         #endif
+    }
+
+    private static func logSkip(testName: String, reason: String) {
+        print("[StepwiseFoundationModel] Skipping \(testName): \(reason) \(environmentSnapshot())")
+    }
+
+    private static func environmentSnapshot() -> String {
+        let runtimeVersion = ProcessInfo.processInfo.operatingSystemVersionString
+        let sdkVersion = shellOutput(
+            "/usr/bin/xcrun",
+            arguments: ["--sdk", "macosx", "--show-sdk-version"]
+        ) ?? "unknown"
+        let sdkPath = shellOutput(
+            "/usr/bin/xcrun",
+            arguments: ["--sdk", "macosx", "--show-sdk-path"]
+        ) ?? "unknown"
+        let xcodeVersion = shellOutput(
+            "/usr/bin/xcodebuild",
+            arguments: ["-version"]
+        )?.split(separator: "\n", maxSplits: 1, omittingEmptySubsequences: true).first.map(String.init) ?? "unknown"
+
+        return "[runtime=\(runtimeVersion) sdk_version=\(sdkVersion) sdk_path=\(sdkPath) xcode=\(xcodeVersion)]"
+    }
+
+    private static func shellOutput(_ executablePath: String, arguments: [String]) -> String? {
+        guard FileManager.default.isExecutableFile(atPath: executablePath) else {
+            return nil
+        }
+
+        let process = Process()
+        process.executableURL = URL(fileURLWithPath: executablePath)
+        process.arguments = arguments
+
+        let standardOutput = Pipe()
+        process.standardOutput = standardOutput
+        process.standardError = Pipe()
+
+        do {
+            try process.run()
+        } catch {
+            return nil
+        }
+
+        process.waitUntilExit()
+        guard process.terminationStatus == 0 else {
+            return nil
+        }
+
+        let data = standardOutput.fileHandleForReading.readDataToEndOfFile()
+        return String(data: data, encoding: .utf8)?.trimmingCharacters(in: .whitespacesAndNewlines)
     }
 
     static func log(measurements: [FoundationModelFixtureMeasurement]) {
