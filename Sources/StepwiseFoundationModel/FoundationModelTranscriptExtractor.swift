@@ -183,15 +183,7 @@ public struct FoundationModelDeviceModelStub: FoundationModelDeviceModel {
                 throw FoundationModelTranscriptExtractorError.transcriptNotFound(input: input)
             }
 
-            if let replayTranscript = matchingTranscripts.first(where: { $0.result?.rawOutput != nil }) {
-                guard let rawOutput = replayTranscript.result?.rawOutput else {
-                    throw FoundationModelTranscriptExtractorError.transcriptMissingResult(
-                        fixtureID: replayTranscript.fixtureID,
-                        error: replayTranscript.error,
-                        environment: replayTranscript.environment
-                    )
-                }
-
+            if let rawOutput = matchingTranscripts.compactMap({ $0.result?.rawOutput }).first {
                 return rawOutput
             }
 

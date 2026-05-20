@@ -34,11 +34,16 @@ public struct FoundationModelStepExtractor: StepExtractor {
 
     public init(configuration: StepExtractionConfiguration = StepExtractionConfiguration()) {
         self.configuration = configuration
+
+        #if canImport(FoundationModels)
         if #available(iOS 26.0, macOS 26.0, *) {
             self.deviceModel = LiveFoundationModelDeviceModel()
         } else {
             self.deviceModel = FoundationModelUnavailableDeviceModel()
         }
+        #else
+        self.deviceModel = FoundationModelUnavailableDeviceModel()
+        #endif
     }
 
     public init<D: FoundationModelDeviceModel>(

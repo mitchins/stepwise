@@ -244,6 +244,7 @@ struct FoundationModelFixtureMeasurement: Sendable {
 enum FoundationModelLiveTestHarness {
     static let environmentVariable = "STEPWISE_RUN_FOUNDATION_MODEL_TESTS"
     static let transcriptEnvironmentVariable = "STEPWISE_DUMP_FOUNDATION_MODEL_TRANSCRIPTS"
+    private static let cachedEnvironmentSnapshot = buildEnvironmentSnapshot()
 
     static var isOptedIn: Bool {
         ProcessInfo.processInfo.environment[environmentVariable] == "1"
@@ -266,7 +267,7 @@ enum FoundationModelLiveTestHarness {
         guard #available(iOS 26.0, macOS 26.0, *) else {
             logSkip(
                 testName: testName,
-                reason: "Foundation Models APIs require iOS 26 or macOS 26."
+                reason: "Foundation Models APIs require iOS 26 or macOS 26 at runtime."
             )
             return false
         }
@@ -294,7 +295,7 @@ enum FoundationModelLiveTestHarness {
     }
 
     private static func logSkip(testName: String, reason: String) {
-        print("[StepwiseFoundationModel] Skipping \(testName): \(reason) \(environmentSnapshot())")
+        print("[StepwiseFoundationModel] Skipping \(testName): \(reason) \(cachedEnvironmentSnapshot)")
     }
 
     static func recordTranscript(
@@ -342,24 +343,31 @@ enum FoundationModelLiveTestHarness {
     }
 
     private static func environmentSnapshot() -> String {
+        cachedEnvironmentSnapshot
+    }
+
+    private static func buildEnvironmentSnapshot() -> String {
         let runtimeVersion = ProcessInfo.processInfo.operatingSystemVersionString
         let sdkVersion = shellOutput(
             "/usr/bin/xcrun",
-            arguments: ["--sdk", "macosx", "--show-sdk-version"]
+            arguments: ["--sdk", "macosx", "--show-sdk-version"],
+            timeout: 1
         ) ?? "unknown"
         let sdkPath = shellOutput(
             "/usr/bin/xcrun",
-            arguments: ["--sdk", "macosx", "--show-sdk-path"]
+            arguments: ["--sdk", "macosx", "--show-sdk-path"],
+            timeout: 1
         ) ?? "unknown"
         let xcodeVersion = shellOutput(
             "/usr/bin/xcodebuild",
-            arguments: ["-version"]
+            arguments: ["-version"],
+            timeout: 1
         )?.split(separator: "\n", maxSplits: 1, omittingEmptySubsequences: true).first.map(String.init) ?? "unknown"
 
         return "[runtime=\(runtimeVersion) sdk_version=\(sdkVersion) sdk_path=\(sdkPath) xcode=\(xcodeVersion)]"
     }
 
-    private static func shellOutput(_ executablePath: String, arguments: [String]) -> String? {
+    private static func shellOutput(_ executablePath: String, arguments: [String], timeout: TimeInterval) -> String? {
         guard FileManager.default.isExecutableFile(atPath: executablePath) else {
             return nil
         }
@@ -378,7 +386,20 @@ enum FoundationModelLiveTestHarness {
             return nil
         }
 
-        process.waitUntilExit()
+        let completionGroup = DispatchGroup()
+        completionGroup.enter()
+        process.terminationHandler = { _ in
+            completionGroup.leave()
+        }
+
+        if completionGroup.wait(timeout: .now() + timeout) == .timedOut {
+            process.terminationHandler = nil
+            if process.isRunning {
+                process.terminate()
+            }
+            return nil
+        }
+
         guard process.terminationStatus == 0 else {
             return nil
         }

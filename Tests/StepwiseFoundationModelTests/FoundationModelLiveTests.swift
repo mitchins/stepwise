@@ -11,13 +11,13 @@ import Glibc
 private func withTemporaryEnvironmentVariable<R>(
     _ name: String,
     value: String,
-    body: () throws -> R
-) rethrows -> R {
+    body: () -> R
+) -> R {
     let previousValue = name.withCString { getenv($0) }.map { String(cString: $0) }
-    name.withCString { setenv($0, value, 1) }
+    _ = name.withCString { setenv($0, value, 1) }
 
     defer {
-        name.withCString { namePointer in
+        _ = name.withCString { namePointer in
             if let previousValue {
                 previousValue.withCString { valuePointer in
                     setenv(namePointer, valuePointer, 1)
@@ -28,7 +28,7 @@ private func withTemporaryEnvironmentVariable<R>(
         }
     }
 
-    return try body()
+    return body()
 }
 
 @Test
@@ -79,7 +79,7 @@ func foundationModelLiveHarnessCanRecordAndReplayStubbedTranscript() async throw
     let result = try await extractor.extractSteps(from: fixture.input)
     #expect(fixture.rubricFailures(for: result).isEmpty)
 
-    try withTemporaryEnvironmentVariable(FoundationModelLiveTestHarness.transcriptEnvironmentVariable, value: "1") {
+    withTemporaryEnvironmentVariable(FoundationModelLiveTestHarness.transcriptEnvironmentVariable, value: "1") {
         FoundationModelLiveTestHarness.recordTranscript(
             fixture: fixture,
             kind: .live,
