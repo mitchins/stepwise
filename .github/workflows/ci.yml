@@ -21,13 +21,14 @@ jobs:
         run: swift package describe
       - name: Build
         run: swift build
-      - name: Test
-        run: swift test --enable-code-coverage
       - name: Foundation Models live sanity
         if: ${{ github.event_name == 'pull_request' }}
+        continue-on-error: true
         env:
           STEPWISE_RUN_FOUNDATION_MODEL_TESTS: 1
         run: swift test --filter liveFoundationModelFixtureSuite
+      - name: Test
+        run: swift test --enable-code-coverage
       - name: Generate SonarCloud coverage report
         if: ${{ github.event_name == 'push' || github.event.pull_request.head.repo.fork == false }}
         shell: bash

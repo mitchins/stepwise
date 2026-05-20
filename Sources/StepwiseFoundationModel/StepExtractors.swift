@@ -46,7 +46,7 @@ public struct FoundationModelStepExtractor: StepExtractor {
         #if canImport(FoundationModels)
         guard #available(iOS 26.0, macOS 26.0, *) else {
             throw StepExtractionError.foundationModelUnavailable(
-                "Foundation Models live extraction requires iOS 26 or macOS 26 in this build environment."
+                "Foundation Models live extraction requires iOS 26 or macOS 26 at runtime."
             )
         }
 
