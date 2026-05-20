@@ -55,6 +55,7 @@ let package = Package(
         .testTarget(
             name: "StepwiseFoundationModelTests",
             dependencies: ["StepwiseFoundationModel", "StepwiseCore"],
+            resources: [.process("Resources")],
             swiftSettings: swiftSettings
         )
     ]

@@ -1,6 +1,6 @@
 # Stepwise
 
-Stepwise is a small Swift package for displaying sequential instructions in Apple apps. It provides a shared step model, SwiftUI views for card/list/rail layouts, validation helpers, and optional extraction scaffolding for converting plain text into validated steps.
+Stepwise is a small Swift package for displaying sequential instructions in Apple apps. It provides a shared step model, focused SwiftUI presentation primitives for card/list/rail layouts, validation helpers, and optional extraction scaffolding for converting plain text into validated steps.
 
 ## What Stepwise is
 
@@ -12,7 +12,7 @@ Use Stepwise when an app needs a stable sequence of human-readable steps, option
 
 ## When not to use it
 
-Do not use Stepwise as a workflow engine, persistence layer, automation framework, or domain-specific recipe or film database. Apps own their persistence, business rules, and domain models.
+Do not use Stepwise as a workflow engine, persistence layer, automation framework, full app shell, or domain-specific recipe or film database. Apps own their persistence, business rules, timers, and domain models.
 
 ## Installation
 
@@ -53,6 +53,12 @@ let document = StepDocument(
 StepFlowView(document: document)
 ```
 
+## Focused presentation
+
+![Stepwise focused presentation mock](docs/assets/stepwise-focused-presentation.svg)
+
+Stepwise provides the step model and presentation primitives. Apps keep their own timers, domain state, persistence, and controls.
+
 ## Data model
 
 The core model lives in `StepwiseCore` and is independent of SwiftUI:
@@ -78,16 +84,98 @@ SwiftUI views live in `StepwiseUI` and depend on `StepwiseCore`. Available views
 - `StepCardView`
 - `StepRowView`
 - `StepListView`
-- `StepFlowView` / `StepPagerView`
+- `StepFlowView` / `StepPagerView` for convenience/demo composition
 - `StepProgressDots`
 - `StepSectionHeaderView`
 - `StepCompletionView`
 - `StepRailView`
 - `WatchStepRailView`
 
-Use `StepwiseTheme` to set tint, done, warning, spacing, corner radius, and icon style. The default style uses Apple-native system colors, Dynamic Type, SF Symbols by name, and accessible labels.
+Use `StepwiseTheme` to set tint, done, warning, spacing, corner radius, and icon style. The default style uses Apple-native system colors, Dynamic Type, SF Symbols by name, and accessible labels. `StepFlowView` / `StepPagerView` is a convenience/demo composition for shells that already match the Stepwise layout; serious integrations should compose from smaller primitives.
 
 See `docs/UI.md`.
+
+## Integrating into an existing app
+
+Stepwise works best as the focused presentation layer inside an existing app. Keep timers, ingredients, batching, voice controls, persistence, diagnostics, and other domain-specific state outside Stepwise.
+
+- Use `StepCardView`, `StepProgressDots`, and the smaller row/list primitives when you want exact control over the presenter shell.
+- Avoid duplicated current-step summaries, engine lights, debug panels, and full step lists in presenter mode.
+- Surface compact current-step metadata only when it adds signal.
+- Treat `StepFlowView` as a convenience/demo composition, not the required shell.
+
+```swift
+import SwiftUI
+import StepwiseCore
+import StepwiseUI
+
+struct FocusedStepPresenter: View {
+    let title: String
+    let activeStep: Step
+    let activeIndex: Int
+    let totalCount: Int
+    let completedCount: Int
+    let onPrevious: () -> Void
+    let onNext: () -> Void
+    let onPrimaryAction: () -> Void
+    let onClose: () -> Void
+    let onRead: (() -> Void)?
+    let onRepeat: (() -> Void)?
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            HStack {
+                Text(title)
+                Spacer()
+                Button("Close", action: onClose)
+            }
+
+            StepProgressDots(
+                total: totalCount,
+                currentIndex: activeIndex,
+                completedCount: completedCount
+            )
+
+            StepCardView(
+                step: activeStep,
+                index: activeIndex,
+                total: totalCount,
+                actionTitle: "Mark done",
+                action: onPrimaryAction
+            )
+
+            HStack {
+                Button("Previous", action: onPrevious)
+                Spacer()
+                if let onRead {
+                    Button("Read", action: onRead)
+                }
+                if let onRepeat {
+                    Button("Repeat", action: onRepeat)
+                }
+                Button("Next", action: onNext)
+            }
+        }
+    }
+}
+```
+
+## Future API idea
+
+A focused presenter primitive could reduce boilerplate for apps that want Stepwise to provide the centered shell without taking over the whole app mode.
+
+```swift
+StepPresentationView(
+    document: document,
+    currentStepID: currentStepID,
+    mode: .focused,
+    onPrevious: ...,
+    onNext: ...,
+    onPrimaryAction: ...
+)
+```
+
+This is a future direction, not a shipping API.
 
 ## Validation and normalization
 
@@ -115,7 +203,7 @@ let prompts = StepPromptSet.build(
 )
 ```
 
-The target provides a protocol, prompt/schema builders, deterministic JSON parsing, validation, repair prompt hooks, mocks, and an availability-gated placeholder for future SDK integration. It does not claim real Foundation Model runtime behavior in this environment.
+The target provides a protocol, prompt/schema builders, deterministic JSON parsing, validation, repair prompt hooks, mocks, and a runtime-gated `FoundationModelStepExtractor` when the Foundation Models framework is actually available. Deterministic extraction tests always run; live Foundation Models sanity checks are opt-in with `STEPWISE_RUN_FOUNDATION_MODEL_TESTS=1 swift test`.
 
 See `docs/Extraction.md`.
 

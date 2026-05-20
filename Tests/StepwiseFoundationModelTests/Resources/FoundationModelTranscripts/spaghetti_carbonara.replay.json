@@ -1,0 +1,102 @@
+{
+  "configuration" : {
+    "allowsSafeJSONExtraction" : false,
+    "domain" : "recipe",
+    "maximumRepairAttempts" : 1,
+    "maximumTitleLength" : 80,
+    "title" : "Spaghetti Carbonara"
+  },
+  "environment" : "[runtime=Version 26.3.1 (a) (Build 25D771280a) sdk_version=26.5 sdk_path=\/Applications\/Xcode.app\/Contents\/Developer\/Platforms\/MacOSX.platform\/Developer\/SDKs\/MacOSX26.5.sdk xcode=Xcode 26.5]",
+  "error" : "commentaryWrappedJSON",
+  "fixtureID" : "spaghetti_carbonara",
+  "input" : "Spaghetti Carbonara\n1. Boil salted water.\n2. Cook 120 g spaghetti for 10 min.\n3. Whisk 2 egg yolks with 35 g pecorino and black pepper.\n4. Toss off heat with reserved pasta water.",
+  "kind" : "replay",
+  "result" : {
+    "document" : {
+      "id" : "carbonara",
+      "metadata" : {
+
+      },
+      "sections" : [
+        {
+          "id" : "cook",
+          "steps" : [
+            {
+              "id" : "boil",
+              "kind" : "action",
+              "metadata" : {
+
+              },
+              "state" : "todo",
+              "title" : "Boil salted water",
+              "warnings" : [
+
+              ]
+            },
+            {
+              "detail" : "Cook 120 g spaghetti for 10 min.",
+              "duration" : {
+                "kind" : "minutes",
+                "value" : 10
+              },
+              "id" : "spaghetti",
+              "kind" : "timer",
+              "metadata" : {
+
+              },
+              "state" : "todo",
+              "timer" : {
+                "automaticallyStarts" : false,
+                "duration" : {
+                  "kind" : "minutes",
+                  "value" : 10
+                },
+                "id" : "spaghetti-timer"
+              },
+              "title" : "Cook the spaghetti",
+              "warnings" : [
+
+              ]
+            },
+            {
+              "detail" : "Add black pepper.",
+              "id" : "whisk",
+              "kind" : "action",
+              "metadata" : {
+
+              },
+              "state" : "todo",
+              "title" : "Whisk egg yolks with pecorino",
+              "warnings" : [
+
+              ]
+            },
+            {
+              "id" : "toss",
+              "kind" : "action",
+              "metadata" : {
+
+              },
+              "state" : "todo",
+              "title" : "Toss with pasta water off heat",
+              "warnings" : [
+
+              ]
+            }
+          ],
+          "title" : "Cook"
+        }
+      ],
+      "title" : "Spaghetti Carbonara"
+    },
+    "rawOutput" : "{\n                \"id\": \"carbonara\",\n  \"title\": \"Spaghetti Carbonara\",\n  \"sections\": [\n    {\n                        \"id\": \"cook\",\n      \"title\": \"Cook\",\n      \"steps\": [\n        {\n                                \"id\": \"boil\",\n          \"title\": \"Boil salted water\",\n          \"kind\": \"action\",\n                                \"state\": \"todo\",\n          \"warnings\": [],\n          \"metadata\": {}\n        },\n        {\n                                \"id\": \"spaghetti\",\n          \"title\": \"Cook the spaghetti\",\n          \"detail\": \"Cook 120 g spaghetti for 10 min.\",\n          \"kind\": \"timer\",\n          \"duration\": {\"kind\": \"minutes\", \"value\": 10},\n          \"timer\": {\n                                    \"id\": \"spaghetti-timer\",\n            \"duration\": {\"kind\": \"minutes\", \"value\": 10},\n            \"automaticallyStarts\": false\n          },\n                                \"state\": \"todo\",\n          \"warnings\": [],\n          \"metadata\": {}\n        },\n        {\n                                \"id\": \"whisk\",\n          \"title\": \"Whisk egg yolks with pecorino\",\n          \"detail\": \"Add black pepper.\",\n          \"kind\": \"action\",\n                                \"state\": \"todo\",\n          \"warnings\": [],\n          \"metadata\": {}\n        },\n        {\n                                \"id\": \"toss\",\n          \"title\": \"Toss with pasta water off heat\",\n          \"kind\": \"action\",\n                                \"state\": \"todo\",\n          \"warnings\": [],\n          \"metadata\": {}\n        }\n      ]\n    }\n  ],\n  \"metadata\": {}\n}",
+    "repairs" : [
+
+    ],
+    "validationReport" : {
+      "issues" : [
+
+      ]
+    }
+  }
+}

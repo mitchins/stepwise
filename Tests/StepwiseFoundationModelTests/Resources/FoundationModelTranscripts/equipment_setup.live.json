@@ -1,0 +1,14 @@
+{
+  "configuration" : {
+    "allowsSafeJSONExtraction" : false,
+    "domain" : "checklist",
+    "maximumRepairAttempts" : 1,
+    "maximumTitleLength" : 80,
+    "title" : "Equipment Setup"
+  },
+  "environment" : "[runtime=Version 26.3.1 (a) (Build 25D771280a) sdk_version=26.5 sdk_path=\/Applications\/Xcode.app\/Contents\/Developer\/Platforms\/MacOSX.platform\/Developer\/SDKs\/MacOSX26.5.sdk xcode=Xcode 26.5]",
+  "error" : "commentaryWrappedJSON",
+  "fixtureID" : "equipment_setup",
+  "input" : "Equipment Setup\n1. Open the kit.\n2. Connect the marked cable.\n3. Wait 30 sec.\n4. Confirm the status light is solid.",
+  "kind" : "live"
+}

@@ -9,7 +9,7 @@ on:
 
 jobs:
   build-and-test:
-    runs-on: macos-latest
+    runs-on: macos-26
     steps:
       - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
         with:
@@ -21,6 +21,12 @@ jobs:
         run: swift package describe
       - name: Build
         run: swift build
+      - name: Foundation Models live sanity
+        if: ${{ github.event_name == 'pull_request' }}
+        continue-on-error: true
+        env:
+          STEPWISE_RUN_FOUNDATION_MODEL_TESTS: 1
+        run: swift test --filter liveFoundationModelFixtureSuite
       - name: Test
         run: swift test --enable-code-coverage
       - name: Generate SonarCloud coverage report
